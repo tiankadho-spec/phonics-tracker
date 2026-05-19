@@ -261,9 +261,18 @@ def get_task_reviews(task_id, progress):
     """获取某个任务的所有复习记录"""
     return [c for c in progress["checkins"] if c["task_id"] == task_id]
 
-def get_next_new_task(tasks, progress):
+def get_next_new_task(tasks, progress, settings=None):
     """获取下一个未学习的新任务"""
     studied_ids = set(c["task_id"] for c in progress["checkins"] if c.get("is_first", False))
+
+    # 如果用户手动设置了进度，将 current_task 及之前的课程都视为已学
+    if settings:
+        current_task_setting = settings.get("current_task")
+        if current_task_setting:
+            for t in tasks:
+                if t["id"] <= current_task_setting:
+                    studied_ids.add(t["id"])
+
     for t in tasks:
         if t["id"] not in studied_ids:
             return t
@@ -281,7 +290,7 @@ def get_today_tasks(tasks, progress, settings):
     today_tasks = []
     
     # 1. 新任务
-    new_task = get_next_new_task(tasks, progress)
+    new_task = get_next_new_task(tasks, progress, settings)
     if new_task:
         today_task_ids.add(new_task["id"])
         today_tasks.append({
@@ -984,6 +993,7 @@ elif page == "设置":
             settings["weak_point_intervals"] = new_weak_intervals
             save_settings(settings)
             st.success("设置已保存！")
+            st.rerun()
         except ValueError:
             st.error("请输入有效的数字，用英文逗号分隔！")
     
