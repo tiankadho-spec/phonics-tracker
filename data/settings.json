@@ -1,0 +1,5 @@
+{
+  "child_name": "宝贝",
+  "review_intervals": [1, 2, 4, 7, 15, 30],
+  "weak_point_intervals": [1, 2, 3, 5, 7, 10]
+}

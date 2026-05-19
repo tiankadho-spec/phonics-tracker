@@ -1,0 +1,420 @@
+{
+  "version": 2,
+  "checkins": [
+    {
+      "task_id": 1,
+      "date": "2026-05-09",
+      "weak_points": [],
+      "mastery": 4,
+      "is_first": true,
+      "timestamp": "2026-05-09T10:00:00"
+    },
+    {
+      "task_id": 1,
+      "date": "2026-05-10",
+      "weak_points": [],
+      "mastery": 5,
+      "is_first": false,
+      "timestamp": "2026-05-10T15:00:00"
+    },
+    {
+      "task_id": 1,
+      "date": "2026-05-11",
+      "weak_points": [],
+      "mastery": 5,
+      "is_first": false,
+      "timestamp": "2026-05-11T15:00:00"
+    },
+    {
+      "task_id": 1,
+      "date": "2026-05-13",
+      "weak_points": [],
+      "mastery": 5,
+      "is_first": false,
+      "timestamp": "2026-05-13T15:00:00"
+    },
+    {
+      "task_id": 1,
+      "date": "2026-05-16",
+      "weak_points": [],
+      "mastery": 5,
+      "is_first": false,
+      "timestamp": "2026-05-16T15:00:00"
+    },
+    {
+      "task_id": 2,
+      "date": "2026-05-10",
+      "weak_points": [],
+      "mastery": 2,
+      "is_first": true,
+      "timestamp": "2026-05-10T10:00:00"
+    },
+    {
+      "task_id": 2,
+      "date": "2026-05-11",
+      "weak_points": [],
+      "mastery": 3,
+      "is_first": false,
+      "timestamp": "2026-05-11T15:00:00"
+    },
+    {
+      "task_id": 2,
+      "date": "2026-05-12",
+      "weak_points": [],
+      "mastery": 3,
+      "is_first": false,
+      "timestamp": "2026-05-12T15:00:00"
+    },
+    {
+      "task_id": 2,
+      "date": "2026-05-14",
+      "weak_points": [],
+      "mastery": 3,
+      "is_first": false,
+      "timestamp": "2026-05-14T15:00:00"
+    },
+    {
+      "task_id": 2,
+      "date": "2026-05-17",
+      "weak_points": [],
+      "mastery": 3,
+      "is_first": false,
+      "timestamp": "2026-05-17T15:00:00"
+    },
+    {
+      "task_id": 3,
+      "date": "2026-05-11",
+      "weak_points": [],
+      "mastery": 3,
+      "is_first": true,
+      "timestamp": "2026-05-11T10:00:00"
+    },
+    {
+      "task_id": 3,
+      "date": "2026-05-12",
+      "weak_points": [],
+      "mastery": 4,
+      "is_first": false,
+      "timestamp": "2026-05-12T15:00:00"
+    },
+    {
+      "task_id": 3,
+      "date": "2026-05-13",
+      "weak_points": [],
+      "mastery": 4,
+      "is_first": false,
+      "timestamp": "2026-05-13T15:00:00"
+    },
+    {
+      "task_id": 3,
+      "date": "2026-05-15",
+      "weak_points": [],
+      "mastery": 4,
+      "is_first": false,
+      "timestamp": "2026-05-15T15:00:00"
+    },
+    {
+      "task_id": 3,
+      "date": "2026-05-18",
+      "weak_points": [],
+      "mastery": 4,
+      "is_first": false,
+      "timestamp": "2026-05-18T15:00:00"
+    },
+    {
+      "task_id": 4,
+      "date": "2026-05-12",
+      "weak_points": [],
+      "mastery": 2,
+      "is_first": true,
+      "timestamp": "2026-05-12T10:00:00"
+    },
+    {
+      "task_id": 4,
+      "date": "2026-05-13",
+      "weak_points": [],
+      "mastery": 3,
+      "is_first": false,
+      "timestamp": "2026-05-13T15:00:00"
+    },
+    {
+      "task_id": 4,
+      "date": "2026-05-14",
+      "weak_points": [],
+      "mastery": 3,
+      "is_first": false,
+      "timestamp": "2026-05-14T15:00:00"
+    },
+    {
+      "task_id": 4,
+      "date": "2026-05-16",
+      "weak_points": [],
+      "mastery": 3,
+      "is_first": false,
+      "timestamp": "2026-05-16T15:00:00"
+    },
+    {
+      "task_id": 5,
+      "date": "2026-05-13",
+      "weak_points": [],
+      "mastery": 4,
+      "is_first": true,
+      "timestamp": "2026-05-13T10:00:00"
+    },
+    {
+      "task_id": 5,
+      "date": "2026-05-14",
+      "weak_points": [],
+      "mastery": 5,
+      "is_first": false,
+      "timestamp": "2026-05-14T15:00:00"
+    },
+    {
+      "task_id": 5,
+      "date": "2026-05-15",
+      "weak_points": [],
+      "mastery": 5,
+      "is_first": false,
+      "timestamp": "2026-05-15T15:00:00"
+    },
+    {
+      "task_id": 5,
+      "date": "2026-05-17",
+      "weak_points": [],
+      "mastery": 5,
+      "is_first": false,
+      "timestamp": "2026-05-17T15:00:00"
+    },
+    {
+      "task_id": 6,
+      "date": "2026-05-14",
+      "weak_points": [
+        "i",
+        "a",
+        "g"
+      ],
+      "mastery": 2,
+      "is_first": true,
+      "timestamp": "2026-05-14T10:00:00"
+    },
+    {
+      "task_id": 6,
+      "date": "2026-05-15",
+      "weak_points": [
+        "i",
+        "a",
+        "g"
+      ],
+      "mastery": 3,
+      "is_first": false,
+      "timestamp": "2026-05-15T15:00:00"
+    },
+    {
+      "task_id": 6,
+      "date": "2026-05-16",
+      "weak_points": [
+        "i",
+        "a",
+        "g"
+      ],
+      "mastery": 3,
+      "is_first": false,
+      "timestamp": "2026-05-16T15:00:00"
+    },
+    {
+      "task_id": 6,
+      "date": "2026-05-18",
+      "weak_points": [
+        "i",
+        "a",
+        "g"
+      ],
+      "mastery": 3,
+      "is_first": false,
+      "timestamp": "2026-05-18T15:00:00"
+    },
+    {
+      "task_id": 7,
+      "date": "2026-05-15",
+      "weak_points": [
+        "u"
+      ],
+      "mastery": 2,
+      "is_first": true,
+      "timestamp": "2026-05-15T10:00:00"
+    },
+    {
+      "task_id": 7,
+      "date": "2026-05-16",
+      "weak_points": [
+        "u"
+      ],
+      "mastery": 3,
+      "is_first": false,
+      "timestamp": "2026-05-16T15:00:00"
+    },
+    {
+      "task_id": 7,
+      "date": "2026-05-17",
+      "weak_points": [
+        "u"
+      ],
+      "mastery": 3,
+      "is_first": false,
+      "timestamp": "2026-05-17T15:00:00"
+    },
+    {
+      "task_id": 8,
+      "date": "2026-05-16",
+      "weak_points": [],
+      "mastery": 2,
+      "is_first": true,
+      "timestamp": "2026-05-16T10:00:00"
+    },
+    {
+      "task_id": 8,
+      "date": "2026-05-17",
+      "weak_points": [],
+      "mastery": 3,
+      "is_first": false,
+      "timestamp": "2026-05-17T15:00:00"
+    },
+    {
+      "task_id": 8,
+      "date": "2026-05-18",
+      "weak_points": [],
+      "mastery": 3,
+      "is_first": false,
+      "timestamp": "2026-05-18T15:00:00"
+    },
+    {
+      "task_id": 9,
+      "date": "2026-05-17",
+      "weak_points": [
+        "f"
+      ],
+      "mastery": 5,
+      "is_first": true,
+      "timestamp": "2026-05-17T10:00:00"
+    },
+    {
+      "task_id": 9,
+      "date": "2026-05-18",
+      "weak_points": [
+        "a",
+        "f"
+      ],
+      "mastery": 5,
+      "is_first": false,
+      "timestamp": "2026-05-18T15:00:00"
+    },
+    {
+      "task_id": 10,
+      "date": "2026-05-18",
+      "weak_points": [
+        "e"
+      ],
+      "mastery": 2,
+      "is_first": true,
+      "timestamp": "2026-05-18T10:00:00"
+    }
+  ],
+  "weak_point_stats": {
+    "a": {
+      "total_encounters": 5,
+      "weak_count": 1,
+      "last_date": "2026-05-18",
+      "is_weak": true,
+      "weak_review_count": 0,
+      "last_weak_review_date": "2026-05-14"
+    },
+    "m": {
+      "total_encounters": 1,
+      "weak_count": 0,
+      "last_date": "2026-05-17",
+      "is_weak": false,
+      "weak_review_count": 0,
+      "last_weak_review_date": null
+    },
+    "o": {
+      "total_encounters": 2,
+      "weak_count": 0,
+      "last_date": "2026-05-17",
+      "is_weak": false,
+      "weak_review_count": 0,
+      "last_weak_review_date": null
+    },
+    "d": {
+      "total_encounters": 3,
+      "weak_count": 0,
+      "last_date": "2026-05-18",
+      "is_weak": false,
+      "weak_review_count": 0,
+      "last_weak_review_date": null
+    },
+    "c": {
+      "total_encounters": 2,
+      "weak_count": 0,
+      "last_date": "2026-05-18",
+      "is_weak": false,
+      "weak_review_count": 0,
+      "last_weak_review_date": null
+    },
+    "i": {
+      "total_encounters": 2,
+      "weak_count": 1,
+      "last_date": "2026-05-18",
+      "is_weak": true,
+      "weak_review_count": 0,
+      "last_weak_review_date": "2026-05-14"
+    },
+    "g": {
+      "total_encounters": 1,
+      "weak_count": 1,
+      "last_date": "2026-05-18",
+      "is_weak": true,
+      "weak_review_count": 0,
+      "last_weak_review_date": "2026-05-14"
+    },
+    "u": {
+      "total_encounters": 1,
+      "weak_count": 1,
+      "last_date": "2026-05-17",
+      "is_weak": true,
+      "weak_review_count": 0,
+      "last_weak_review_date": "2026-05-15"
+    },
+    "ff": {
+      "total_encounters": 1,
+      "weak_count": 0,
+      "last_date": "2026-05-17",
+      "is_weak": false,
+      "weak_review_count": 0,
+      "last_weak_review_date": null
+    },
+    "e": {
+      "total_encounters": 2,
+      "weak_count": 1,
+      "last_date": "2026-05-18",
+      "is_weak": true,
+      "weak_review_count": 0,
+      "last_weak_review_date": "2026-05-18"
+    },
+    "f": {
+      "total_encounters": 1,
+      "weak_count": 1,
+      "last_date": "2026-05-18",
+      "is_weak": true,
+      "weak_review_count": 0,
+      "last_weak_review_date": "2026-05-17"
+    },
+    "v": {
+      "total_encounters": 1,
+      "weak_count": 0,
+      "last_date": "2026-05-18",
+      "is_weak": false,
+      "weak_review_count": 0,
+      "last_weak_review_date": null
+    }
+  }
+}
