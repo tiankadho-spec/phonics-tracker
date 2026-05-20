@@ -132,21 +132,50 @@ def get_progress():
     
     return data
 
-def generate_progress_for_task(current_task, base_date=None):
+def _generate_checkin_dates(count, base_date=None, pattern="sparse"):
     """
-    生成指定进度的完整学习历史
-    current_task: 已学完成到第几课（也就是昨天学的最后一课）
-    base_date: 首学第一天的日期，默认是昨天向前推 current_task-1 天
+    生成不均匀的打卡日期，模拟真实学习节奏（如一周2-3次）
+    count: 需要生成的首学打卡次数
+    base_date: 起始日期，默认是今天向前推
+    pattern: "sparse"=稀疏（间隔2-4天，模拟一周2次）
+    返回：日期列表（datetime 对象），长度 = count
     """
     import random
     random.seed(42)
     
     if base_date is None:
-        # 默认基准：首学第一课在 current_task 天前
         today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-        base_date = today - timedelta(days=current_task - 1)
+        # 估算：稀疏模式下，每次首学间隔约3天，加上复习穿插
+        estimated_days = count * 3 + 20
+        base_date = today - timedelta(days=estimated_days)
     else:
         today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    dates = []
+    current = base_date
+    for _ in range(count):
+        dates.append(current)
+        # 间隔 2-5 天（模拟一周2-3次打卡）
+        gap = random.randint(2, 5)
+        current = current + timedelta(days=gap)
+    
+    return dates
+
+def generate_progress_for_task(current_task, base_date=None):
+    """
+    生成指定进度的完整学习历史（基于打卡次数，非日历日期）
+    current_task: 已学完成到第几课
+    base_date: 首学第一天的日期，默认是今天向前推约 current_task*3 天（模拟一周2次打卡）
+    """
+    import random
+    random.seed(42)
+    
+    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    if base_date is None:
+        # 模拟一周打卡2-3次，平均每2-4天打卡一次
+        # 总天数 ≈ current_task * 3 + 随机波动
+        total_days = current_task * 3 + random.randint(-5, 5)
+        base_date = today - timedelta(days=max(total_days, current_task))
     
     REVIEW_INTERVALS = [1, 2, 4, 7, 15, 30]
     
@@ -156,9 +185,25 @@ def generate_progress_for_task(current_task, base_date=None):
     checkins = []
     weak_point_stats = {}
     
+    # 生成打卡日期序列：模拟一周2-3次，间隔2-4天
+    checkin_dates = []
+    current_date = base_date
+    for _ in range(current_task * 4):  # 预留足够日期（首学+复习）
+        checkin_dates.append(current_date)
+        # 间隔2-4天（模拟一周2-3次打卡）
+        gap = random.randint(2, 4)
+        current_date = current_date + timedelta(days=gap)
+        if current_date > today + timedelta(days=30):
+            break
+    
+    date_idx = 0
     for task_idx in range(current_task):
         task_id = task_idx + 1
-        first_date = base_date + timedelta(days=task_idx)
+        
+        if date_idx >= len(checkin_dates):
+            break
+        first_date = checkin_dates[date_idx]
+        date_idx += 1
         
         if task_idx < len(tasks):
             phonics_list = tasks[task_idx].get('phonics_focus', [])
@@ -196,27 +241,32 @@ def generate_progress_for_task(current_task, base_date=None):
                 weak_point_stats[p]["weak_review_count"] = 0
                 weak_point_stats[p]["last_weak_review_date"] = first_date.strftime("%Y-%m-%d")
         
-        # 复习
+        # 复习 - 基于打卡次数间隔（每N次打卡后复习）
         for interval in REVIEW_INTERVALS:
-            review_date = first_date + timedelta(days=interval)
-            if review_date <= today:
-                review_mastery = min(5, mastery + 1)
-                review_weak = [p for p in phonics_list if weak_point_stats[p]["is_weak"]]
+            if date_idx >= len(checkin_dates):
+                break
+            review_date = checkin_dates[date_idx]
+            date_idx += 1
+            if review_date > today:
+                break
                 
-                checkins.append({
-                    "task_id": task_id,
-                    "date": review_date.strftime("%Y-%m-%d"),
-                    "weak_points": review_weak,
-                    "mastery": review_mastery,
-                    "is_first": False,
-                    "timestamp": review_date.strftime("%Y-%m-%d") + "T15:00:00"
-                })
-                
-                for p in phonics_list:
-                    weak_point_stats[p]["last_date"] = review_date.strftime("%Y-%m-%d")
+            review_mastery = min(5, mastery + 1)
+            review_weak = [p for p in phonics_list if weak_point_stats[p]["is_weak"]]
+            
+            checkins.append({
+                "task_id": task_id,
+                "date": review_date.strftime("%Y-%m-%d"),
+                "weak_points": review_weak,
+                "mastery": review_mastery,
+                "is_first": False,
+                "timestamp": review_date.strftime("%Y-%m-%d") + "T15:00:00"
+            })
+            
+            for p in phonics_list:
+                weak_point_stats[p]["last_date"] = review_date.strftime("%Y-%m-%d")
     
     return {
-        "version": 2,
+        "version": 3,
         "checkins": checkins,
         "weak_point_stats": weak_point_stats
     }
@@ -261,7 +311,7 @@ def get_task_reviews(task_id, progress):
     return [c for c in progress["checkins"] if c["task_id"] == task_id]
 
 def get_next_new_task(tasks, progress, settings=None):
-    """获取下一个未学习的新任务"""
+    """获取下一个未学习的新任务（基于首学打卡记录）"""
     studied_ids = set(c["task_id"] for c in progress["checkins"] if c.get("is_first", False))
 
     # 如果用户手动设置了进度，将 current_task 及之前的课程都视为已学
@@ -279,7 +329,9 @@ def get_next_new_task(tasks, progress, settings=None):
 
 def get_today_tasks(tasks, progress, settings):
     """获取今日任务列表（新学 + 复习）
-    修改：显示所有逾期未复习的任务，不仅限于"今天"到期的
+    核心改动：基于打卡次数，而非日历日期
+    - 新课：基于已首学打卡次数决定下一课
+    - 复习：基于上次复习后的打卡次数间隔
     """
     today = datetime.now()
     today_str = format_date(today)
@@ -290,7 +342,22 @@ def get_today_tasks(tasks, progress, settings):
     today_task_ids = set()
     today_tasks = []
     
-    # 1. 新任务
+    # 计算总打卡次数（所有checkin）
+    total_checkins = len(checkins)
+    
+    # 计算每个任务的首学打卡序号（第几次打卡时首学的）
+    first_checkin_indices = {}
+    for idx, c in enumerate(checkins):
+        if c.get("is_first", False) and c["task_id"] not in first_checkin_indices:
+            first_checkin_indices[c["task_id"]] = idx
+    
+    # 计算每个任务的复习打卡次数
+    task_review_counts = {}
+    for c in checkins:
+        if not c.get("is_first", False):
+            task_review_counts[c["task_id"]] = task_review_counts.get(c["task_id"], 0) + 1
+    
+    # 1. 新任务 - 基于首学次数，不是日期
     new_task = get_next_new_task(tasks, progress, settings)
     if new_task:
         today_task_ids.add(new_task["id"])
@@ -300,58 +367,58 @@ def get_today_tasks(tasks, progress, settings):
             "reason": "今日新课"
         })
     
-    # 2. 按艾宾浩斯曲线安排的复习
-    # 修改：显示所有"复习日 <= 今天"的任务（包含逾期的）
-    first_checkins = [c for c in checkins if c.get("is_first", False)]
-    for fc in first_checkins:
-        task_id = fc["task_id"]
-        first_date = parse_date(fc["date"])
-        reviews = get_task_reviews(task_id, progress)
-        review_count = len([r for r in reviews if not r.get("is_first", False)])
+    # 2. 按艾宾浩斯曲线安排的复习 - 基于打卡次数间隔
+    for task_id, first_idx in first_checkin_indices.items():
+        review_count = task_review_counts.get(task_id, 0)
         
         if review_count < len(intervals):
-            next_review_day = first_date + timedelta(days=intervals[review_count])
-            next_review_str = format_date(next_review_day)
+            # 复习应该在第 (first_idx + intervals[review_count]) 次打卡时触发
+            next_review_checkin_idx = first_idx + intervals[review_count]
             
-            # 修改：从"== 今天"改为"<= 今天"，显示所有逾期复习
-            if next_review_str <= today_str and task_id not in today_task_ids:
+            # 如果今天应该打这次卡（即下次打卡序号 >= next_review_checkin_idx）
+            # 且该任务还没有被加入今日任务
+            if total_checkins >= next_review_checkin_idx and task_id not in today_task_ids:
                 task = get_task_by_id(tasks, task_id)
                 if task:
                     today_task_ids.add(task_id)
                     today_tasks.append({
                         "task": task,
                         "type": "复习",
-                        "reason": f"第{review_count + 1}次复习（间隔{intervals[review_count]}天，已到期）"
+                        "reason": f"第{review_count + 1}次复习（间隔{intervals[review_count]}次打卡）"
                     })
     
-    # 3. 薄弱点加强复习
-    # 修改：同样显示所有逾期的薄弱点复习
+    # 3. 薄弱点加强复习 - 同样基于打卡次数
     weak_stats = progress.get("weak_point_stats", {})
     for phonics, stats in weak_stats.items():
         if stats.get("is_weak", False):
-            weak_review_date = stats.get("last_weak_review_date")
-            if weak_review_date:
-                last_date = parse_date(weak_review_date)
-                weak_count = stats.get("weak_review_count", 0)
-                if weak_count < len(weak_intervals):
-                    next_weak_day = last_date + timedelta(days=weak_intervals[weak_count])
-                    # 修改：从"== 今天"改为"<= 今天"
-                    if format_date(next_weak_day) <= today_str:
-                        # 找包含这个薄弱音的任务
-                        for t in tasks:
-                            if phonics in t.get("phonics_focus", []) and t["id"] not in today_task_ids:
-                                today_task_ids.add(t["id"])
-                                today_tasks.append({
-                                    "task": t,
-                                    "type": "薄弱点复习",
-                                    "reason": f"薄弱音 '{phonics}' 加强练习（已到期）"
-                                })
-                                break
+            weak_review_count = stats.get("weak_review_count", 0)
+            if weak_review_count < len(weak_intervals):
+                # 找到这个薄弱音最后一次被复习时的打卡序号
+                last_weak_review_date = stats.get("last_weak_review_date")
+                last_weak_idx = 0
+                if last_weak_review_date:
+                    for idx, c in enumerate(checkins):
+                        if c["date"] == last_weak_review_date and phonics in c.get("weak_points", []):
+                            last_weak_idx = idx
+                            break
+                
+                next_weak_checkin_idx = last_weak_idx + weak_intervals[weak_review_count]
+                if total_checkins >= next_weak_checkin_idx:
+                    # 找包含这个薄弱音的任务
+                    for t in tasks:
+                        if phonics in t.get("phonics_focus", []) and t["id"] not in today_task_ids:
+                            today_task_ids.add(t["id"])
+                            today_tasks.append({
+                                "task": t,
+                                "type": "薄弱点复习",
+                                "reason": f"薄弱音 '{phonics}' 加强练习（间隔{weak_intervals[weak_review_count]}次打卡）"
+                            })
+                            break
     
     return today_tasks
 
 def record_checkin(task_id, weak_points, mastery, is_first=False):
-    """记录打卡"""
+    """记录打卡（基于打卡次数逻辑）"""
     progress = get_progress()
     today = get_today()
     
@@ -968,20 +1035,20 @@ elif page == "设置":
     total_tasks = len(get_curriculum().get("tasks", []))
     current_task_setting = settings.get("current_task", 10)
     new_current_task = st.slider(
-        f"已学完到第几课（今天将学习第 {current_task_setting + 1} 课）",
+        f"已学完到第几课（下次打卡将学习第 {current_task_setting + 1} 课）",
         min_value=1,
         max_value=total_tasks,
         value=current_task_setting
     )
-    st.caption(f"如果孩子今天刚好学完第 {new_current_task} 课，明天程序将推荐第 {new_current_task + 1} 课作为新内容。")
+    st.caption(f"如果已打卡学完第 {new_current_task} 课，下次打卡时程序将推荐第 {new_current_task + 1} 课作为新内容。")
     
-    st.markdown("### 🔄 复习间隔设置（天）")
-    st.markdown("艾宾浩斯遗忘曲线推荐间隔：1, 2, 4, 7, 15, 30 天")
+    st.markdown("### 🔄 复习间隔设置（打卡次数）")
+    st.markdown("艾宾浩斯遗忘曲线推荐间隔（打卡次数）：1, 2, 4, 7, 15, 30 次打卡")
     
     current_intervals = settings.get("review_intervals", DEFAULT_REVIEW_INTERVALS)
     interval_str = st.text_input("复习间隔（用英文逗号分隔）", value=", ".join(map(str, current_intervals)))
     
-    st.markdown("### 💪 薄弱点加强间隔（天）")
+    st.markdown("### 💪 薄弱点加强间隔（打卡次数）")
     current_weak_intervals = settings.get("weak_point_intervals", WEAK_POINT_INTERVALS)
     weak_interval_str = st.text_input("薄弱点复习间隔（用英文逗号分隔）", value=", ".join(map(str, current_weak_intervals)))
     
