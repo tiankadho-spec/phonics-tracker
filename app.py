@@ -126,7 +126,7 @@ def get_progress():
     current_task = settings.get("current_task", 10)
     
     # 启动时自动检测：如果没有数据或版本不对，自动初始化
-    if not data.get("checkins") or data.get("version") != 2:
+    if not data.get("checkins") or data.get("version") != 3:
         data = generate_progress_for_task(current_task)
         save_progress(data)
     
