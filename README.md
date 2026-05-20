@@ -86,3 +86,4 @@
 | `requirements.txt` | Python 依赖包列表 |
 | `data/` | 数据存储目录（运行时自动生成） |
 | `.streamlit/config.toml` | Streamlit 配置 |
+# 版本标记: v2.1 多用户隔离
