@@ -38,19 +38,18 @@ def _sanitize_username(name):
     return safe[:30] or "default"
 
 def get_current_user():
-    """获取当前用户名，支持 URL 参数和 session_state"""
-    # 优先从 URL 参数获取
+    """获取当前用户名，仅支持 URL 参数（刷新不丢失，可分享链接）"""
     params = st.query_params
     if "user" in params and params["user"]:
         return _sanitize_username(str(params["user"]))
-    # 其次从 session_state 获取
-    if "current_user" in st.session_state and st.session_state["current_user"]:
-        return st.session_state["current_user"]
     return None
 
 def set_current_user(name):
-    """设置当前用户"""
-    st.session_state["current_user"] = _sanitize_username(name)
+    """设置当前用户到 URL 参数，并刷新页面"""
+    safe = _sanitize_username(name)
+    st.query_params["user"] = safe
+    # 立即刷新，URL 会变成 .../?user=名字
+    st.rerun()
 
 def get_user_files(user):
     """根据用户名返回对应的文件路径"""
@@ -279,7 +278,9 @@ def get_next_new_task(tasks, progress, settings=None):
     return None
 
 def get_today_tasks(tasks, progress, settings):
-    """获取今日任务列表（新学 + 复习）"""
+    """获取今日任务列表（新学 + 复习）
+    修改：显示所有逾期未复习的任务，不仅限于"今天"到期的
+    """
     today = datetime.now()
     today_str = format_date(today)
     checkins = progress["checkins"]
@@ -300,6 +301,7 @@ def get_today_tasks(tasks, progress, settings):
         })
     
     # 2. 按艾宾浩斯曲线安排的复习
+    # 修改：显示所有"复习日 <= 今天"的任务（包含逾期的）
     first_checkins = [c for c in checkins if c.get("is_first", False)]
     for fc in first_checkins:
         task_id = fc["task_id"]
@@ -311,17 +313,19 @@ def get_today_tasks(tasks, progress, settings):
             next_review_day = first_date + timedelta(days=intervals[review_count])
             next_review_str = format_date(next_review_day)
             
-            if next_review_str == today_str and task_id not in today_task_ids:
+            # 修改：从"== 今天"改为"<= 今天"，显示所有逾期复习
+            if next_review_str <= today_str and task_id not in today_task_ids:
                 task = get_task_by_id(tasks, task_id)
                 if task:
                     today_task_ids.add(task_id)
                     today_tasks.append({
                         "task": task,
                         "type": "复习",
-                        "reason": f"第{review_count + 1}次复习（间隔{intervals[review_count]}天）"
+                        "reason": f"第{review_count + 1}次复习（间隔{intervals[review_count]}天，已到期）"
                     })
     
     # 3. 薄弱点加强复习
+    # 修改：同样显示所有逾期的薄弱点复习
     weak_stats = progress.get("weak_point_stats", {})
     for phonics, stats in weak_stats.items():
         if stats.get("is_weak", False):
@@ -331,7 +335,8 @@ def get_today_tasks(tasks, progress, settings):
                 weak_count = stats.get("weak_review_count", 0)
                 if weak_count < len(weak_intervals):
                     next_weak_day = last_date + timedelta(days=weak_intervals[weak_count])
-                    if format_date(next_weak_day) == today_str:
+                    # 修改：从"== 今天"改为"<= 今天"
+                    if format_date(next_weak_day) <= today_str:
                         # 找包含这个薄弱音的任务
                         for t in tasks:
                             if phonics in t.get("phonics_focus", []) and t["id"] not in today_task_ids:
@@ -339,7 +344,7 @@ def get_today_tasks(tasks, progress, settings):
                                 today_tasks.append({
                                     "task": t,
                                     "type": "薄弱点复习",
-                                    "reason": f"薄弱音 '{phonics}' 加强练习"
+                                    "reason": f"薄弱音 '{phonics}' 加强练习（已到期）"
                                 })
                                 break
     
@@ -548,8 +553,8 @@ if not current_user:
     # 顶部显示登录提示
     st.markdown("""
     <div style="background-color: #FFF3CD; border: 1px solid #FFEAA7; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;">
-        <span style="font-size: 1.1rem;">⚠️ 请先输入使用者名称，才能保存你自己的学习进度！</span>
-        <br><small>每个人输入不同的名称，数据就会完全隔离，互不干扰。</small>
+        <span style="font-size: 1.1rem;">👋 请输入使用者名称，生成你的专属打卡链接！</span>
+        <br><small>💡 每个人使用不同的链接，数据完全隔离，互不干扰。</small>
     </div>
     """, unsafe_allow_html=True)
 
@@ -562,7 +567,6 @@ if not current_user:
         if st.button("确认进入", type="primary", use_container_width=True):
             if user_input.strip():
                 set_current_user(user_input.strip())
-                st.rerun()
             else:
                 st.error("请输入名称！")
     st.stop()
@@ -944,10 +948,16 @@ elif page == "设置":
     col_u1, col_u2 = st.columns([3, 1])
     with col_u1:
         st.info(f"当前用户：**{current}** | 每个用户的数据完全隔离")
+        # 显示专属链接，方便分享
+        base_url = "https://phonics-tracker-bwo2clxgclrwqruw72w5h7.streamlit.app/"
+        personal_url = f"{base_url}?user={current}"
+        st.code(personal_url, language=None)
+        st.caption("📋 上方是你的专属链接，建议收藏或复制给孩子使用")
     with col_u2:
         if st.button("退出当前用户", use_container_width=True):
-            if "current_user" in st.session_state:
-                del st.session_state["current_user"]
+            # 清除 URL 参数并刷新
+            if "user" in st.query_params:
+                del st.query_params["user"]
             st.rerun()
     st.markdown("---")
 
